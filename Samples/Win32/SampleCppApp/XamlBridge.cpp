@@ -9,6 +9,11 @@ bool DesktopWindow::FilterMessage(const MSG* msg)
     // DesktopWindowXamlSource instances so keyboard accelerators and 
     // keyboard focus work correctly.
     BOOL xamlSourceProcessedMessage = FALSE;
+
+    // Uncomment to disable the caret browsing dialog in XAML
+    //if (msg->message == WM_KEYDOWN && msg->wParam == VK_F7)
+    //    return true;
+
     {
         for (auto xamlSource : m_xamlSources)
         {
