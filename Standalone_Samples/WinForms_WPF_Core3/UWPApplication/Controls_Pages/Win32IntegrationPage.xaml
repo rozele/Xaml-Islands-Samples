@@ -16,6 +16,9 @@
         <TextBlock Text="Orientation - UWP Display Information"  Style="{StaticResource SubtitleTextBlockStyle}" />
         <TextBlock x:Name="displayOrientationUWP" Text="" />
 
+        <TextBlock Text="Camera Capture"  Style="{StaticResource SubtitleTextBlockStyle}" />
+        <Button x:Name="cameraBtn" Content="Capture" Click="cameraBtn_Click" />
+        <Image x:Name="imageControl" Width="200" Height="200"/>
 
     </StackPanel>
 </Page>
