@@ -7,6 +7,12 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
+        <!-- Only do this for MSBuild versions below 16.0
+             as it is since done automatically, see https://github.com/microsoft/msbuild/pull/3605-->
+        <MSBuildAllProjects Condition="'$(MSBuildToolsVersion)'  &lt;= '15'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <PreferredToolArchitecture>x64</PreferredToolArchitecture>
         <CanReferenceWinRT>true</CanReferenceWinRT>
         <CppWinRTPackage Condition="'$(CppWinRTEnabled)' != 'true'">true</CppWinRTPackage>
@@ -23,11 +29,8 @@ Copyright (C) Microsoft Corporation. All rights reserved.
         <ClCompile>
             <CompileAsWinRT Condition="'$(CppWinRTProjectLanguage)' != 'C++/CX' And '%(ClCompile.CompileAsWinRT)' == ''">false</CompileAsWinRT>
             <LanguageStandard Condition="'%(ClCompile.LanguageStandard)' == ''">stdcpp17</LanguageStandard>
-            <AdditionalOptions>/bigobj /await %(AdditionalOptions)</AdditionalOptions>
-            <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(GeneratedFilesDir)</AdditionalIncludeDirectories>
         </ClCompile>
         <Midl Condition="'$(CppWinRTModernIDL)' != 'false'">
-            <AdditionalOptions>%(AdditionalOptions) /nomidl</AdditionalOptions>
             <EnableWindowsRuntime>true</EnableWindowsRuntime>
             <MetadataFileName>$(IntDir)Unmerged\%(Filename).winmd</MetadataFileName>
             <GenerateClientFiles Condition="'%(Midl.GenerateClientFiles)'==''">None</GenerateClientFiles>
@@ -40,9 +43,20 @@ Copyright (C) Microsoft Corporation. All rights reserved.
             <ProxyFileName Condition="'%(Midl.ProxyFileName)'==''">nul</ProxyFileName>
             <TypeLibraryName Condition="'%(Midl.TypeLibraryName)'==''"></TypeLibraryName>
         </Midl>
-        <Link>
-            <AdditionalDependencies Condition="'$(CppWinRTLibs)' != 'false'">WindowsApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-        </Link>
+        <ProjectReference Condition="'$(XamlLanguage)' != 'C++'">
+            <!-- By default, for a C++/WinRT project,
+                 don't copy project reference output to the output directory
+                 of the current project unless this is an exe. -->
+            <Private>false</Private>
+            <Private Condition="'$(ConfigurationType)' == 'Application' or '$(OutputType)'=='winexe' or '$(OutputType)'=='exe' or '$(OutputType)'=='appcontainerexe'">true</Private>
+        </ProjectReference>
+        <Reference Condition="'$(XamlLanguage)' != 'C++'">
+            <!-- By default, for a C++/WinRT project,
+                 don't copy reference output to the output directory
+                 of the current project unless this is an exe. -->
+            <Private>false</Private>
+            <Private Condition="'$(ConfigurationType)' == 'Application' or '$(OutputType)'=='winexe' or '$(OutputType)'=='exe' or '$(OutputType)'=='appcontainerexe'">true</Private>
+        </Reference>
     </ItemDefinitionGroup>
 
     <ItemGroup>
